@@ -48,4 +48,53 @@ class RxTest {
     a ! 4
     assertEquals(21, count)
   }
+
+  @Test
+  def test_option={
+    val a = Var[Option[Int]](None)
+    val b = Var[Option[Int]](None)
+    val c = Rx {
+      (a!).flatMap{ x =>
+        (b!).map{ y =>
+          x + y
+        }
+      }
+    }
+    a ! Some(1)
+    b ! Some(2)
+    //assert (c() == Some(3))
+    assertEquals(Some(3), c!)
+  }
+
+  @Test
+  def test_stringmul={
+    val a = Var(Seq(1, 2, 3))
+    val b = Var(3)
+    val c = Rx{ (b!) +: (a!) }
+    val d = Rx{ (c!).map("omg" * _) }
+    val e = Var("wtf")
+    val f = Rx{ ((d!) :+ (e!)).mkString }
+
+    assert((f!) == "omgomgomgomgomgomgomgomgomgwtf")
+    a ! Nil
+    assert((f!) == "omgomgomgwtf")
+    e ! "wtfbbq"
+    assert((f!) == "omgomgomgwtfbbq")
+  }
+
+  @Test
+  def test_pattern_match={
+    val a = Var(1)
+    val b = Var(2)
+    val c = Rx{
+      a.! match{
+        case 0 => b!
+        case x => x
+      }
+    }
+    assertEquals(1, c!)
+    a ! 0
+    assertEquals(2, c!)
+  }
+
 }

@@ -2,28 +2,9 @@ package main
 
 //https://github.com/lihaoyi/scala.rx
 
-trait Receiver {
-  def receive()
-}
-
-class Obs[T](block: () => Unit) extends Receiver {
-  def receive() {
-    //println("\t\treceived")
-    block()
-  }
-}
-
-object Obs {
-  def apply[T](r: Var[T])(a: => Unit) = {
-    val o = new Obs[T](() => {
-      a
-    })
-    r += o
-    o
-  }
-}
-
-
+// TODO Rx should emit too
+// problem: setting Var value does not provoke Rx refresh
+// so any Rx callback do not fire
 class Rx[T](block: () => T) {
 
   def ! = {
@@ -52,7 +33,7 @@ object Rx {
       count = (b !) + 1
     }
     println("\t" + count) // 16
-    a ! 4
+    a ! 4 // listener added to a forces Obs update
     println("\t" + count) // 21
 
   }

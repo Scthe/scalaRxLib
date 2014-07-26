@@ -1,8 +1,7 @@
 package main
 
-class Var[T](private val v: T) {
+class Var[T](private val v: T) extends Emiter {
   private var value: T = v
-  private var listeners: List[Receiver] = Nil
 
   def !(v: T) = {
     //println("set " + value + "->" + v)
@@ -13,17 +12,6 @@ class Var[T](private val v: T) {
   def ! = {
     //println("get: " + value)
     value
-  }
-
-  def +=(r: Receiver) {
-    //println("register receiver")
-    r.receive()
-    listeners = r :: listeners
-  }
-
-  private def emit() {
-    //println("emit to:" + listeners.length)
-    listeners.foreach(_.receive())
   }
 }
 
