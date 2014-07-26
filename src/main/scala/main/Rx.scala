@@ -1,5 +1,7 @@
 package main
 
+//https://github.com/lihaoyi/scala.rx
+
 class Var[T](private val v: T) {
   private var value: T = v
 
