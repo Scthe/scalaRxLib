@@ -1,4 +1,4 @@
-import main.{Rx, Var}
+import main.{Obs, Rx, Var}
 import org.junit.Assert._
 import org.junit.Test
 
@@ -35,6 +35,17 @@ class RxTest {
     assertEquals(38, f !)
   }
 
-  //@Test def test2 = assertFalse(true)
+  @Test
+  def test_obs = {
+    val a = Var(3)
+    val b = Rx{ (a!) * 5 } // 15
 
+    var count = 0
+    val o = Obs(a){
+      count = (b!) + 1
+    }
+    assertEquals(16, count)
+    a ! 4
+    assertEquals(21, count)
+  }
 }

@@ -2,25 +2,34 @@ package main
 
 //https://github.com/lihaoyi/scala.rx
 
-class Var[T](private val v: T) {
-  private var value: T = v
-
-  def !(v: T) = {
-    //println("set " + value + "->" + v)
-    value = v
-  }
-
-  def ! = value
+trait Receiver {
+  def receive()
 }
 
-object Var {
-  def apply[T](a: T) = {
-    new Var(a)
+class Obs[T](block: () => Unit) extends Receiver {
+  def receive() {
+    //println("\t\treceived")
+    block()
   }
 }
+
+object Obs {
+  def apply[T](r: Var[T])(a: => Unit) = {
+    val o = new Obs[T](() => {
+      a
+    })
+    r += o
+    o
+  }
+}
+
 
 class Rx[T](block: () => T) {
-  def ! = block()
+
+  def ! = {
+    block()
+  }
+
 }
 
 object Rx {
@@ -31,18 +40,20 @@ object Rx {
   }
 
   def main(args: Array[String]) {
-    val a = Var(1)
-    val b = Var(2)
-    //var dd = a!
-    val c = Rx {
-      //a() + b()
-      println("block: " + (a !) + "_" + (b !))
-      (a !) + (b !)
-      //a! + b!
-      //!a + !b
+    val a = Var(3)
+    val b = Rx {
+      println("RECALC rx: " + (a !))
+      (a !) * 5
+    } // 15
+
+    var count = 0
+    val o = Obs(a) {
+      println("RECALC obs: " + (b !))
+      count = (b !) + 1
     }
-    println(c !) // 3
+    println("\t" + count) // 16
     a ! 4
-    println(c !) // 6
+    println("\t" + count) // 21
+
   }
 }
